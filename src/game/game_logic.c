@@ -2,6 +2,15 @@
 #include <stdlib.h>
 #include <time.h>
 
+int check_mine_at(GameState *game, int row, int col) {
+    for (int i = 0; i < game->minesCount; i++) {
+        if (game->minesLocations[i].row == row && game->minesLocations[i].col == col) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 GameState *create_game(GameConfig *config)
 {
     GameState *game = (GameState *)malloc(sizeof(GameState));
@@ -19,21 +28,26 @@ GameState *create_game(GameConfig *config)
         }
     }
 
+    // TODO: robić losowanie dopiero wtedy, kiedy gracz kliknie na pierwsze pole
     // Losowo rozmieszczamy miny (15% całej planszy)
     game->minesCount = (int)(game->rows * game->cols * 0.15);
     game->minesLocations = (Location *)malloc(sizeof(Location) * game->minesCount);
-    for (int i = 0; i < game->minesCount; i++)
+    int placedMines = 0;
+    while (placedMines < game->minesCount)
     {
-        int row, col;
-        do
-        {
-            row = rand() % game->rows;
-            col = rand() % game->cols;
-        } while (game->userMap[row][col] == -2);
+        int row = rand() % game->rows;
+        int col = rand() % game->cols;
 
-        game->userMap[row][col] = -2;
-        game->minesLocations[i].row = row;
-        game->minesLocations[i].col = col;
+        // Sprawdzamy, czy na tym polu już jest mina, jeśli tak, to losujemy ponownie
+        // (nie chcemy, żeby dwie miny były na tym samym polu)
+        if (check_mine_at(game, row, col))
+        {
+            continue;
+        }
+
+        game->minesLocations[placedMines].row = row;
+        game->minesLocations[placedMines].col = col;
+        placedMines++;
     }
 
     game->startTime = time(NULL);
