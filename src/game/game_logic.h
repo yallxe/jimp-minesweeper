@@ -33,5 +33,6 @@ typedef struct
 } GameState;
 
 GameState *create_game(GameConfig *config);
+int check_mine_at(GameState *game, int row, int col);
 
 #endif // GAME_LOGIC_H
