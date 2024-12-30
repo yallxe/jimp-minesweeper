@@ -22,6 +22,14 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    render_game(game, show_bombs_cheat);
+    // Inicjalizacja mapy do wyświetlania w konsoli
+    // Potrzebna do funkcji render_game
+    char **display_map = (char **)malloc(sizeof(char *) * game->rows);
+    for (int i = 0; i < game->rows; i++)
+    {
+        display_map[i] = (char *)malloc(sizeof(char) * game->cols);
+    }
+
+    while (render_game(game, show_bombs_cheat, display_map) != -1);
     return 0;
 }
