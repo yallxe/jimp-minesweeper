@@ -33,6 +33,8 @@ typedef struct
 } GameState;
 
 GameState *create_game(GameConfig *config);
+int reveal_field(GameState *game, int row, int col);
+void flag_field(GameState *game, int row, int col);
 int check_mine_at(GameState *game, int row, int col);
 
 #endif // GAME_LOGIC_H

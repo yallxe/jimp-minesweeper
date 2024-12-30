@@ -4,7 +4,7 @@
 #include <time.h>
 #include <stdlib.h>
 
-void render_game(GameState *game, int showBombs)
+int render_game(GameState *game, int showBombs, char** displayMap)
 {
     clearterm();
 
@@ -12,13 +12,17 @@ void render_game(GameState *game, int showBombs)
     time_t currentTime = time(NULL);
     int elapsedTime = (int)difftime(currentTime, game->startTime);
     int remainingTime = game->minutes * 60 - elapsedTime;
+    if (remainingTime <= 0)
+    {
+        printf("Czas minął!\n");
+        return -1;
+    }
+
     printf("Czasu zostało: %d minut %d sekund\n", remainingTime / 60, remainingTime % 60);
 
-    // Tworzymy plansze (macierz charów) do wyświetlenia
-    char **displayMap = (char **)malloc(sizeof(char *) * game->rows);
+    // Wypełniamy plansze do wyświetlenia
     for (int i = 0; i < game->rows; i++)
     {
-        displayMap[i] = (char *)malloc(sizeof(char) * game->cols);
         for (int j = 0; j < game->cols; j++)
         {
             if (game->userMap[i][j] == -1)
@@ -66,4 +70,42 @@ void render_game(GameState *game, int showBombs)
         }
         printf("\n");
     }
+
+    // Pytamy użytkownika o ruch
+    printf("Wpisz komende ('r/f [x] [y]'): ");
+
+    // Czytamy komendę
+    char action;
+    scanf(" %c", &action);
+    if (action == 'q')
+    {
+        return -1;
+    }
+
+    int x, y;
+    scanf("%d %d", &x, &y);
+    x--;
+    y--;
+
+    if (x < 0 || x >= game->rows || y < 0 || y >= game->cols)
+    {
+        printf("Nieprawidłowe współrzędne\n");
+        return 0;
+    }
+
+    if (action == 'r')
+    {
+        int result = reveal_field(game, x, y);
+        if (result == -1)
+        {
+            printf("Przegrałeś!\n");
+            return -1;
+        }
+    }
+    else if (action == 'f')
+    {
+        flag_field(game, x, y);
+    }
+
+    return 0;
 }

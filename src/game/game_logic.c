@@ -54,3 +54,49 @@ GameState *create_game(GameConfig *config)
     game->minutes = config->minutes;
     return game;
 }
+
+int reveal_field(GameState *game, int row, int col) {
+    if (game->userMap[row][col] != -1) {
+        return 0;
+    }
+
+    if (check_mine_at(game, row, col)) {
+        return -1;
+    }
+
+    int minesCount = 0;
+    for (int i = -1; i <= 1; i++) {
+        for (int j = -1; j <= 1; j++) {
+            if (row + i < 0 || row + i >= game->rows || col + j < 0 || col + j >= game->cols) {
+                continue;
+            }
+            if (check_mine_at(game, row + i, col + j)) {
+                minesCount++;
+            }
+        }
+    }
+
+    game->userMap[row][col] = minesCount;
+
+    if (minesCount == 0) {
+        for (int i = -1; i <= 1; i++) {
+            for (int j = -1; j <= 1; j++) {
+                if (row + i < 0 || row + i >= game->rows || col + j < 0 || col + j >= game->cols) {
+                    continue;
+                }
+                reveal_field(game, row + i, col + j);
+            }
+        }
+    }
+
+    return 1;
+}
+
+void flag_field(GameState *game, int row, int col) {
+    if (game->userMap[row][col] == -1) {
+        game->userMap[row][col] = -2;
+    }
+    else if (game->userMap[row][col] == -2) {
+        game->userMap[row][col] = -1;
+    }
+}
