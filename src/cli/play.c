@@ -12,7 +12,7 @@ GameCliState *init_cli_state(GameState *game, int showBombs)
     {
         state->displayMap[i] = (char *)malloc(sizeof(char) * game->cols);
     }
-    state->showBombs = 0;
+    state->showBombs = showBombs;
     state->message = NULL;
     return state;
 }
@@ -20,6 +20,7 @@ GameCliState *init_cli_state(GameState *game, int showBombs)
 int render_game(GameState *game, GameCliState *cliState)
 {
     clearterm();
+
     // Obliczamy ile czasu zostało
     time_t currentTime = time(NULL);
     int elapsedTime = (int)difftime(currentTime, game->startTime);
@@ -41,7 +42,7 @@ int render_game(GameState *game, GameCliState *cliState)
             {
                 cliState->displayMap[i][j] = '.';
             }
-            else if (game->userMap[i][j] == -2)
+            else if (game->userMap[i][j] <= -2)
             {
                 cliState->displayMap[i][j] = 'F';
             }
@@ -61,7 +62,10 @@ int render_game(GameState *game, GameCliState *cliState)
     {
         for (int i = 0; i < game->minesCount; i++)
         {
-            if (game->userMap[game->minesLocations[i].row][game->minesLocations[i].col] != -2)
+            int fieldState = game->userMap[game->minesLocations[i].row][game->minesLocations[i].col];
+            if (fieldState == -2)
+                cliState->displayMap[game->minesLocations[i].row][game->minesLocations[i].col] = 'X';
+            else
                 cliState->displayMap[game->minesLocations[i].row][game->minesLocations[i].col] = 'B';
         }
     }

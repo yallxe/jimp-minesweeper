@@ -5,7 +5,9 @@
 #include "game_config.h"
 
 // Definiuje pole takie, jak na mapie użytkownika
-// -2 - oflagowane pole
+// Możliwe wartości:
+// -3 - oflagowane pole nieprawidłowo - nie ma miny
+// -2 - oflagowane pole prawidłowo - jest mina
 // -1 - nieodkryte pole
 // 0 - odkryte pole i brak min w sąsiedztwie
 // 1-... - odkryte pole i liczba min w sąsiedztwie

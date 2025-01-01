@@ -2,9 +2,12 @@
 #include <stdlib.h>
 #include <time.h>
 
-int check_mine_at(GameState *game, int row, int col) {
-    for (int i = 0; i < game->minesCount; i++) {
-        if (game->minesLocations[i].row == row && game->minesLocations[i].col == col) {
+int check_mine_at(GameState *game, int row, int col)
+{
+    for (int i = 0; i < game->minesCount; i++)
+    {
+        if (game->minesLocations[i].row == row && game->minesLocations[i].col == col)
+        {
             return 1;
         }
     }
@@ -55,22 +58,29 @@ GameState *create_game(GameConfig *config)
     return game;
 }
 
-int reveal_field(GameState *game, int row, int col) {
-    if (game->userMap[row][col] != -1) {
+int reveal_field(GameState *game, int row, int col)
+{
+    if (game->userMap[row][col] != -1)
+    {
         return 0;
     }
 
-    if (check_mine_at(game, row, col)) {
+    if (check_mine_at(game, row, col))
+    {
         return -1;
     }
 
     int minesCount = 0;
-    for (int i = -1; i <= 1; i++) {
-        for (int j = -1; j <= 1; j++) {
-            if (row + i < 0 || row + i >= game->rows || col + j < 0 || col + j >= game->cols) {
+    for (int i = -1; i <= 1; i++)
+    {
+        for (int j = -1; j <= 1; j++)
+        {
+            if (row + i < 0 || row + i >= game->rows || col + j < 0 || col + j >= game->cols)
+            {
                 continue;
             }
-            if (check_mine_at(game, row + i, col + j)) {
+            if (check_mine_at(game, row + i, col + j))
+            {
                 minesCount++;
             }
         }
@@ -78,10 +88,14 @@ int reveal_field(GameState *game, int row, int col) {
 
     game->userMap[row][col] = minesCount;
 
-    if (minesCount == 0) {
-        for (int i = -1; i <= 1; i++) {
-            for (int j = -1; j <= 1; j++) {
-                if (row + i < 0 || row + i >= game->rows || col + j < 0 || col + j >= game->cols) {
+    if (minesCount == 0)
+    {
+        for (int i = -1; i <= 1; i++)
+        {
+            for (int j = -1; j <= 1; j++)
+            {
+                if (row + i < 0 || row + i >= game->rows || col + j < 0 || col + j >= game->cols)
+                {
                     continue;
                 }
                 reveal_field(game, row + i, col + j);
@@ -92,11 +106,21 @@ int reveal_field(GameState *game, int row, int col) {
     return 1;
 }
 
-void flag_field(GameState *game, int row, int col) {
-    if (game->userMap[row][col] == -1) {
-        game->userMap[row][col] = -2;
+void flag_field(GameState *game, int row, int col)
+{
+    if (game->userMap[row][col] == -1)
+    {
+        if (check_mine_at(game, row, col))
+        {
+            game->userMap[row][col] = -2;
+        }
+        else
+        {
+            game->userMap[row][col] = -3;
+        }
     }
-    else if (game->userMap[row][col] == -2) {
+    else if (game->userMap[row][col] <= -2)
+    {
         game->userMap[row][col] = -1;
     }
 }
