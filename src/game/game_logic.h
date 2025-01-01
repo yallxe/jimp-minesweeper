@@ -27,6 +27,7 @@ typedef struct
     int rows;
     int cols;
 
+    int unrevealedFields;
     int minesCount;
     Location *minesLocations;
 
@@ -35,7 +36,13 @@ typedef struct
 } GameState;
 
 GameState *create_game(GameConfig *config);
+
+// zwraca:
+//  0 - pole odkryte, nic się nie stało
+// -1 - przegrana
+// 1 - wygrana, nie ma już nieodkrytych pól
 int reveal_field(GameState *game, int row, int col);
+
 void flag_field(GameState *game, int row, int col);
 int check_mine_at(GameState *game, int row, int col);
 

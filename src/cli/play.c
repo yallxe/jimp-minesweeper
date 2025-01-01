@@ -18,6 +18,55 @@ GameCliState *init_cli_state(GameState *game, int showBombs)
     return state;
 }
 
+void show_game_results(GameState *game, GameCliState *cliState)
+{
+    clearterm();
+
+    // Wypełniamy plansze do wyświetlenia
+    // Tam gdzie sa miny, ale nie ma flagi, wstawiamy 'B'
+    // Tam gdzie są flagi, ale nie ma miny, wstawiamy '-'
+    // Tam gdzie są flagi i miny, wstawiamy 'X'
+    for (int i = 0; i < game->rows; i++)
+    {
+        for (int j = 0; j < game->cols; j++)
+        {
+            if (game->userMap[i][j] == -1)
+            {
+                if (check_mine_at(game, i, j))
+                {
+                    cliState->displayMap[i][j] = 'B';
+                }
+                else
+                {
+                    cliState->displayMap[i][j] = '.';
+                }
+            }
+            else if (game->userMap[i][j] == -2)
+            {
+                cliState->displayMap[i][j] = 'X';
+            }
+            else if (game->userMap[i][j] == -3)
+            {
+                cliState->displayMap[i][j] = '-';
+            }
+            else
+            {
+                if (game->userMap[i][j] == 0)
+                {
+                    cliState->displayMap[i][j] = ' ';
+                }
+                else
+                {
+                    cliState->displayMap[i][j] = '0' + game->userMap[i][j];
+                }
+            }
+        }
+    }
+
+    // Wyświetlamy planszę
+    print_display_map(cliState->displayMap, game->rows, game->cols);
+}
+
 int render_game(GameState *game, GameCliState *cliState)
 {
     clearterm();
@@ -129,7 +178,17 @@ int render_game(GameState *game, GameCliState *cliState)
     if (action == 'r')
     {
         int result = reveal_field(game, x, y);
-        if (result == -1)
+        if (result != 0)
+        {
+            show_game_results(game, cliState);
+        }
+
+        if (result == 1)
+        {
+            printf("Wygrałeś!\n");
+            return -1;
+        }
+        else if (result == -1)
         {
             printf("Przegrałeś!\n");
             return -1;

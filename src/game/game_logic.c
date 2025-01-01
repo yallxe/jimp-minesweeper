@@ -31,6 +31,9 @@ GameState *create_game(GameConfig *config)
         }
     }
 
+    // Inicjalizacja licznika nieodkrytych pól
+    game->unrevealedFields = game->rows * game->cols;
+
     // TODO: robić losowanie dopiero wtedy, kiedy gracz kliknie na pierwsze pole
     // Losowo rozmieszczamy miny (15% całej planszy)
     game->minesCount = (int)(game->rows * game->cols * 0.15);
@@ -87,6 +90,7 @@ int reveal_field(GameState *game, int row, int col)
     }
 
     game->userMap[row][col] = minesCount;
+    game->unrevealedFields--;
 
     if (minesCount == 0)
     {
@@ -103,7 +107,12 @@ int reveal_field(GameState *game, int row, int col)
         }
     }
 
-    return 1;
+    if (game->unrevealedFields == game->minesCount)
+    {
+        return 1;
+    }
+
+    return 0;
 }
 
 void flag_field(GameState *game, int row, int col)
