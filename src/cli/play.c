@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
+#include <string.h>
 
 GameCliState *init_cli_state(GameState *game, int showBombs)
 {
@@ -93,10 +94,16 @@ int render_game(GameState *game, GameCliState *cliState)
         return 0;
     }
 
+    if (input[0] == '\n')
+    {
+        free(input);
+        return 0;
+    }
+
     // Parsujemy komendę
     char action;
     int x, y;
-    if (sscanf(input, " %c %d %d", &action, &x, &y) != 3)
+    if (sscanf(input, "%c %d %d", &action, &x, &y) != 3)
     {
         cliState->message = "Nieprawidłowa komenda";
         free(input);

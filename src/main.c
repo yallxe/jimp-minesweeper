@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 int main(int argc, char **argv)
 {
@@ -15,6 +16,9 @@ int main(int argc, char **argv)
         fprintf(stderr, "Nie udało się utworzyć konfiguracji gry\n");
         return 1;
     }
+
+    // Inicjalizacja generatora liczb losowych
+    srand(time(NULL));
 
     // Inicjalizacja stanu gry - część logiki
     GameState *game = create_game(config);
