@@ -7,6 +7,7 @@
 
 int main(int argc, char **argv)
 {
+    // Wczytywanie konfiguracji gry
     int show_bombs_cheat = argc > 1 && strcmp(argv[1], "--cheat") == 0;
     GameConfig *config = ask_user_for_game_config();
     if (config == NULL)
@@ -15,6 +16,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
+    // Inicjalizacja stanu gry - część logiki
     GameState *game = create_game(config);
     if (game == NULL)
     {
@@ -22,14 +24,12 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    // Inicjalizacja mapy do wyświetlania w konsoli
-    // Potrzebna do funkcji render_game
-    char **display_map = (char **)malloc(sizeof(char *) * game->rows);
-    for (int i = 0; i < game->rows; i++)
-    {
-        display_map[i] = (char *)malloc(sizeof(char) * game->cols);
-    }
+    // Inicjalizacja stanu gry - część renderująca
+    GameCliState *cliGameState = init_cli_state(game, show_bombs_cheat);
 
-    while (render_game(game, show_bombs_cheat, display_map) != -1);
+    // Pętla gry
+    while (render_game(game, cliGameState) != -1)
+        ;
+
     return 0;
 }

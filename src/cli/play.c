@@ -4,10 +4,22 @@
 #include <time.h>
 #include <stdlib.h>
 
-int render_game(GameState *game, int showBombs, char** displayMap)
+GameCliState *init_cli_state(GameState *game, int showBombs)
+{
+    GameCliState *state = (GameCliState *)malloc(sizeof(GameCliState));
+    state->displayMap = (char **)malloc(sizeof(char *) * game->rows);
+    for (int i = 0; i < game->rows; i++)
+    {
+        state->displayMap[i] = (char *)malloc(sizeof(char) * game->cols);
+    }
+    state->showBombs = 0;
+    state->message = NULL;
+    return state;
+}
+
+int render_game(GameState *game, GameCliState *cliState)
 {
     clearterm();
-
     // Obliczamy ile czasu zostało
     time_t currentTime = time(NULL);
     int elapsedTime = (int)difftime(currentTime, game->startTime);
@@ -27,69 +39,79 @@ int render_game(GameState *game, int showBombs, char** displayMap)
         {
             if (game->userMap[i][j] == -1)
             {
-                displayMap[i][j] = '.';
+                cliState->displayMap[i][j] = '.';
             }
             else if (game->userMap[i][j] == -2)
             {
-                displayMap[i][j] = 'F';
+                cliState->displayMap[i][j] = 'F';
             }
             else if (game->userMap[i][j] == 0)
             {
-                displayMap[i][j] = ' ';
+                cliState->displayMap[i][j] = ' ';
             }
             else
             {
-                displayMap[i][j] = '0' + game->userMap[i][j];
+                cliState->displayMap[i][j] = '0' + game->userMap[i][j];
             }
         }
     }
 
     // Cheat mode - pokazujemy miny
-    if (showBombs)
+    if (cliState->showBombs)
     {
         for (int i = 0; i < game->minesCount; i++)
         {
             if (game->userMap[game->minesLocations[i].row][game->minesLocations[i].col] != -2)
-                displayMap[game->minesLocations[i].row][game->minesLocations[i].col] = 'B';
+                cliState->displayMap[game->minesLocations[i].row][game->minesLocations[i].col] = 'B';
         }
     }
 
     // Wyświetlamy planszę
-    printf("   ");
-    for (int i = 1; i <= game->cols; i++)
+    print_display_map(cliState->displayMap, game->rows, game->cols);
+
+    // Wyświetlamy nowy komunikat
+    if (cliState->message != NULL)
     {
-        printf("%2d ", i);
-    }
-    printf("\n");
-    for (int i = 0; i < game->rows; i++)
-    {
-        printf("%2d ", i + 1);
-        for (int j = 0; j < game->cols; j++)
-        {
-            printf("%2c ", displayMap[i][j]);
-        }
-        printf("\n");
+        printf("KOMUNIKAT: %s\n", cliState->message);
+        cliState->message = NULL;
     }
 
     // Pytamy użytkownika o ruch
     printf("Wpisz komende ('r/f [x] [y]'): ");
 
     // Czytamy komendę
+    char *input = NULL;
+    size_t len = 0;
+    if (getline(&input, &len, stdin) == -1)
+    {
+        cliState->message = "Błąd podczas czytania komendy";
+        free(input);
+        return 0;
+    }
+
+    // Parsujemy komendę
     char action;
-    scanf(" %c", &action);
+    int x, y;
+    if (sscanf(input, " %c %d %d", &action, &x, &y) != 3)
+    {
+        cliState->message = "Nieprawidłowa komenda";
+        free(input);
+        return 0;
+    }
+
+    free(input);
+
     if (action == 'q')
     {
         return -1;
     }
 
-    int x, y;
-    scanf("%d %d", &x, &y);
     x--;
     y--;
 
     if (x < 0 || x >= game->rows || y < 0 || y >= game->cols)
     {
-        printf("Nieprawidłowe współrzędne\n");
+        cliState->message = "Nieprawidłowe współrzędne";
         return 0;
     }
 
@@ -105,6 +127,10 @@ int render_game(GameState *game, int showBombs, char** displayMap)
     else if (action == 'f')
     {
         flag_field(game, x, y);
+    }
+    else
+    {
+        cliState->message = "Nieprawidłowa komenda";
     }
 
     return 0;

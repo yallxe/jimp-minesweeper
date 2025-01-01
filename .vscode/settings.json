@@ -5,7 +5,7 @@
     },
     "[c]": {
         "editor.formatOnSave": true,
-        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.defaultFormatter": "ms-vscode.cpptools",
         "editor.tabSize": 4,
     }
 }
