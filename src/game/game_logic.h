@@ -37,6 +37,8 @@ typedef struct
 
 GameState *create_game(GameConfig *config);
 
+void generate_mines(GameState *game, int excludeRow, int excludeCol);
+
 // zwraca:
 //  0 - pole odkryte, nic się nie stało
 // -1 - przegrana

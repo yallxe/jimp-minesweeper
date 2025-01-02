@@ -21,6 +21,7 @@ GameCliState *init_cli_state(GameState *game, int showBombs)
 void show_game_results(GameState *game, GameCliState *cliState)
 {
     clearterm();
+    printf("Gra zakończona!\n");
 
     // Wypełniamy plansze do wyświetlenia
     // Tam gdzie sa miny, ale nie ma flagi, wstawiamy 'B'

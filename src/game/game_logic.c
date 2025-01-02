@@ -34,8 +34,17 @@ GameState *create_game(GameConfig *config)
     // Inicjalizacja licznika nieodkrytych pól
     game->unrevealedFields = game->rows * game->cols;
 
-    // TODO: robić losowanie dopiero wtedy, kiedy gracz kliknie na pierwsze pole
-    // Losowo rozmieszczamy miny (15% całej planszy)
+    // Miny generują się dopiero w momencie odkrycia pierwszego pola
+    game->minesCount = 0;
+    game->minesLocations = NULL;
+
+    game->startTime = time(NULL);
+    game->minutes = config->minutes;
+    return game;
+}
+
+void generate_mines(GameState *game, int excludeRow, int excludeCol)
+{
     game->minesCount = (int)(game->rows * game->cols * 0.15);
     game->minesLocations = (Location *)malloc(sizeof(Location) * game->minesCount);
     int placedMines = 0;
@@ -44,9 +53,9 @@ GameState *create_game(GameConfig *config)
         int row = rand() % game->rows;
         int col = rand() % game->cols;
 
-        // Sprawdzamy, czy na tym polu już jest mina, jeśli tak, to losujemy ponownie
-        // (nie chcemy, żeby dwie miny były na tym samym polu)
-        if (check_mine_at(game, row, col))
+        // Sprawdzamy, czy na tym polu już jest mina lub czy to pole musi być wyłączone z generowania,
+        // jeśli tak, to losujemy ponownie
+        if (check_mine_at(game, row, col) || (row == excludeRow && col == excludeCol))
         {
             continue;
         }
@@ -55,14 +64,15 @@ GameState *create_game(GameConfig *config)
         game->minesLocations[placedMines].col = col;
         placedMines++;
     }
-
-    game->startTime = time(NULL);
-    game->minutes = config->minutes;
-    return game;
 }
 
 int reveal_field(GameState *game, int row, int col)
 {
+    if (game->minesCount == 0)
+    {
+        generate_mines(game, row, col);
+    }
+
     if (game->userMap[row][col] != -1)
     {
         return 0;
