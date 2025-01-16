@@ -55,7 +55,7 @@ int main(int argc, char **argv)
     }
     else
     {
-        GameConfig *config = ask_user_for_game_config();
+        config = ask_user_for_game_config();
         if (config == NULL)
         {
             fprintf(stderr, "Nie udało się utworzyć konfiguracji gry\n");
