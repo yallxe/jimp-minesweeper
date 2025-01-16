@@ -30,18 +30,22 @@ GameConfig *ask_user_for_game_config()
         config->rows = 9;
         config->cols = 9;
         config->minutes = 10;
+        config->difficulty = GD_EASY;
         break;
     case 2:
         config->rows = 16;
         config->cols = 16;
         config->minutes = 40;
+        config->difficulty = GD_MEDIUM;
         break;
     case 3:
         config->rows = 16;
         config->cols = 30;
         config->minutes = 99;
+        config->difficulty = GD_HARD;
         break;
     case 4:
+        config->difficulty = GD_CUSTOM;
         printf("Podaj liczbę wierszy: ");
         while (scanf("%d", &config->rows) != 1 || config->rows < 1 || config->rows > 100)
         {

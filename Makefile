@@ -6,7 +6,7 @@ CFLAGS = -Wall -g
 TARGET = bin/minesweeper
 
 # Source files
-SRCS = src/main.c src/cli/start.c src/cli/play.c src/cli/utils.c src/game/game_logic.c 
+SRCS = src/main.c src/cli/start.c src/cli/play.c src/cli/utils.c src/game/game_logic.c src/game/game_filedb.c
 
 # Object files (derived from SRCS)
 OBJS = $(SRCS:src/%.c=bin/%.o)

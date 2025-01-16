@@ -19,6 +19,7 @@ GameState *create_game(GameConfig *config)
     GameState *game = (GameState *)malloc(sizeof(GameState));
     game->rows = config->rows;
     game->cols = config->cols;
+    game->difficulty = config->difficulty;
 
     // Inicjalizacja mapy użytkownika
     game->userMap = (UserMapField **)malloc(sizeof(UserMapField *) * game->rows);

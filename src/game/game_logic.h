@@ -26,6 +26,7 @@ typedef struct
     UserMapField **userMap;
     int rows;
     int cols;
+    GameDifficulty difficulty;
 
     int unrevealedFields;
     int minesCount;

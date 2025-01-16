@@ -6,8 +6,15 @@
 #include <string.h>
 #include <time.h>
 
+// Usage:
+// --cheat - pokazuje miny na planszy (default false)
+// --board (-b) <plik.txt> - plik z planszą do gry (opcjonalnie)
+// --moves (-m) <plik.txt> - plik z ruchami (opcjonalnie)
+// -h - pokazuje pomoc
 int main(int argc, char **argv)
 {
+    // TODO: Wczytywanie argumentow CLI
+
     // Wczytywanie konfiguracji gry
     int show_bombs_cheat = argc > 1 && strcmp(argv[1], "--cheat") == 0;
     GameConfig *config = ask_user_for_game_config();
@@ -19,6 +26,9 @@ int main(int argc, char **argv)
 
     // Inicjalizacja generatora liczb losowych
     srand(time(NULL));
+
+    // Inicjalizacja bazy danych
+    DbHandle *db = open_db_handle();
 
     // Inicjalizacja stanu gry - część logiki
     GameState *game = create_game(config);
@@ -32,7 +42,7 @@ int main(int argc, char **argv)
     GameCliState *cliGameState = init_cli_state(game, show_bombs_cheat);
 
     // Pętla gry
-    while (render_game(game, cliGameState) != -1)
+    while (render_game(game, cliGameState, db) != -1)
         ;
 
     return 0;

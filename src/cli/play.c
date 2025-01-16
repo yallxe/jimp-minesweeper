@@ -18,6 +18,26 @@ GameCliState *init_cli_state(GameState *game, int showBombs)
     return state;
 }
 
+void ask_save_score(GameState *game, DbHandle *db)
+{
+    printf("Podaj swoje imię: ");
+    char username[100];
+    scanf("%s", username);
+    int completed_in = (int)difftime(time(NULL), game->startTime);
+    save_score(db, username, completed_in, game->difficulty);
+}
+
+void print_top_scores(DbHandle *db)
+{
+    ScoreRecord *records = get_top_scores(db, 5);
+    printf("Top 5 wyników:\n");
+    for (int i = 0; i < 5; i++)
+    {
+        printf("%d. %s - %d sekund\n", i + 1, records[i].name, records[i].seconds);
+    }
+    // free_score_records(records, 5);
+}
+
 void show_game_results(GameState *game, GameCliState *cliState)
 {
     clearterm();
@@ -68,7 +88,7 @@ void show_game_results(GameState *game, GameCliState *cliState)
     print_display_map(cliState->displayMap, game->rows, game->cols);
 }
 
-int render_game(GameState *game, GameCliState *cliState)
+int render_game(GameState *game, GameCliState *cliState, DbHandle *db)
 {
     clearterm();
 
@@ -187,11 +207,14 @@ int render_game(GameState *game, GameCliState *cliState)
         if (result == 1)
         {
             printf("Wygrałeś!\n");
+            ask_save_score(game, db);
+            print_top_scores(db);
             return -1;
         }
         else if (result == -1)
         {
             printf("Przegrałeś!\n");
+            print_top_scores(db);
             return -1;
         }
     }
