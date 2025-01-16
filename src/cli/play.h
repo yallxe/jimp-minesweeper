@@ -12,5 +12,6 @@ typedef struct
 
 GameCliState *init_cli_state(GameState *game, int showBombs);
 int render_game(GameState *game, GameCliState *cliState, DbHandle *db);
+void simulate_game_from_file(GameState *game, char *filepath);
 
 #endif // PLAY_H

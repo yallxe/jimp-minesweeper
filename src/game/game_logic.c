@@ -1,5 +1,6 @@
 #include "game_logic.h"
 #include <stdlib.h>
+#include <stdio.h>
 #include <time.h>
 
 int check_mine_at(GameState *game, int row, int col)
@@ -14,13 +15,41 @@ int check_mine_at(GameState *game, int row, int col)
     return 0;
 }
 
-GameState *create_game(GameConfig *config)
+void load_board_from_file(GameState *game, char *filepath)
 {
-    GameState *game = (GameState *)malloc(sizeof(GameState));
-    game->rows = config->rows;
-    game->cols = config->cols;
-    game->difficulty = config->difficulty;
+    FILE *file = fopen(filepath, "r");
+    if (file == NULL)
+    {
+        return;
+    }
 
+    int rows, cols, minesCount, minutes;
+    fscanf(file, "%d %d %d %d", &rows, &cols, &minesCount, &minutes);
+    game->rows = rows;
+    game->cols = cols;
+    game->minutes = minutes;
+
+    game->minesCount = minesCount;
+    game->minesLocations = (Location *)malloc(sizeof(Location) * minesCount);
+    for (int i = 0; i < minesCount; i++)
+    {
+        int mineRow, mineCol;
+        fscanf(file, "%d %d", &mineRow, &mineCol);
+        mineRow--;
+        mineCol--;
+        if (mineRow < 0 || mineRow >= rows || mineCol < 0 || mineCol >= cols)
+        {
+            continue;
+        }
+        game->minesLocations[i].row = mineRow;
+        game->minesLocations[i].col = mineCol;
+    }
+
+    fclose(file);
+}
+
+void finish_init_gs(GameState *game)
+{
     // Inicjalizacja mapy użytkownika
     game->userMap = (UserMapField **)malloc(sizeof(UserMapField *) * game->rows);
     for (int i = 0; i < game->rows; i++)
@@ -34,13 +63,30 @@ GameState *create_game(GameConfig *config)
 
     // Inicjalizacja licznika nieodkrytych pól
     game->unrevealedFields = game->rows * game->cols;
-
-    // Miny generują się dopiero w momencie odkrycia pierwszego pola
-    game->minesCount = 0;
-    game->minesLocations = NULL;
-
     game->startTime = time(NULL);
-    game->minutes = config->minutes;
+}
+
+GameState *create_game(GameConfig *config)
+{
+    GameState *game = (GameState *)malloc(sizeof(GameState));
+    if (config->custom_board_file != NULL)
+    {
+        load_board_from_file(game, config->custom_board_file);
+    }
+    else
+    {
+        game->rows = config->rows;
+        game->cols = config->cols;
+        game->difficulty = config->difficulty;
+
+        // Miny generują się dopiero w momencie odkrycia pierwszego pola
+        game->minesCount = 0;
+        game->minesLocations = NULL;
+
+        game->minutes = config->minutes;
+    }
+
+    finish_init_gs(game);
     return game;
 }
 

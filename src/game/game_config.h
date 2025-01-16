@@ -15,6 +15,8 @@ typedef struct
     int cols;
     int minutes;
     GameDifficulty difficulty;
+
+    char *custom_board_file;
 } GameConfig;
 
 #endif // GAME_CONFIG_H

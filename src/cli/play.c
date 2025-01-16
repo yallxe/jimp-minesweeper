@@ -229,3 +229,82 @@ int render_game(GameState *game, GameCliState *cliState, DbHandle *db)
 
     return 0;
 }
+
+void simulate_game_from_file(GameState *game, char *filepath)
+{
+    FILE *file = fopen(filepath, "r");
+    if (file == NULL)
+    {
+        printf("Nie udało się otworzyć pliku %s\n", filepath);
+        return;
+    }
+
+    int revealLastState = 0;
+    char *input = NULL;
+    size_t len = 0;
+    int line = 1;
+    while (getline(&input, &len, file) != -1)
+    {
+        if (input[0] == '\n')
+        {
+            continue;
+        }
+
+        char action;
+        int x, y;
+        if (sscanf(input, "%c %d %d", &action, &x, &y) != 3)
+        {
+            printf("Nieprawidłowa komenda w linii %d\n", line);
+            free(input);
+            fclose(file);
+            return;
+        }
+
+        x--;
+        y--;
+
+        if (x < 0 || x >= game->rows || y < 0 || y >= game->cols)
+        {
+            printf("Nieprawidłowe współrzędne w linii %d\n", line);
+            free(input);
+            fclose(file);
+            return;
+        }
+
+        if (action == 'r')
+        {
+            int result = reveal_field(game, x, y);
+            if (result != 0)
+            {
+                revealLastState = result;
+                break;
+            }
+        }
+        else if (action == 'f')
+        {
+            flag_field(game, x, y);
+        }
+        else
+        {
+            printf("Nieprawidłowa komenda w linii %d\n", line);
+            free(input);
+            fclose(file);
+            return;
+        }
+
+        line++;
+    }
+
+    free(input);
+    fclose(file);
+
+    show_game_results(game, init_cli_state(game, 1));
+    if (revealLastState == 1)
+    {
+        printf("Wygrałeś!\n");
+    }
+    else if (revealLastState == -1)
+    {
+        printf("Przegrałeś!\n");
+    }
+}
